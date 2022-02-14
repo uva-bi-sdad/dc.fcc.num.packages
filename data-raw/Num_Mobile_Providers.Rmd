@@ -1,0 +1,300 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r}
+library(sf)
+library(tidyverse)
+library(tmap)
+library(tmaptools)
+library(tigris)
+library(tidycensus)
+library(rmapshaper)
+library(matrixStats)
+library(SpatialAcc)
+library(reticulate)
+library(dplyr)
+library(tidygeocoder)
+library(readxl)
+```
+
+
+```{r}
+# verizon_data <- st_read("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Verizon_data/Verizon_Wireless_349862.shp")
+
+va_mobile_deployment_jun20 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020/F477_2020_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2020)
+va_mobile_deployment_jun19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2019/F477_2019_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2019)
+va_mobile_deployment_jun18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2018/F477_2018_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2018)
+va_mobile_deployment_jun17 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2017/F477_2017_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2017)
+va_mobile_deployment_jun16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2016/VA-Mobile-Jun2016-v1.csv") %>% mutate(year = 2016)
+va_mobile_deployment_dec19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019/F477_2019_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2019)
+va_mobile_deployment_dec18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2018/F477_2018_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2018)
+va_mobile_deployment_dec17 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2017/F477_2017_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2017)
+va_mobile_deployment_dec16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2016/F477_2016_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2016)
+va_mobile_deployment_dec15 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2015/VA-Mobile-Dec2015-v3.csv") %>% mutate(year = 2015)
+
+
+md_mobile_deployment_jun20 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020/F477_2020_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2020)
+md_mobile_deployment_jun19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2019/F477_2019_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2019)
+md_mobile_deployment_jun18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2018/F477_2018_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2018)
+md_mobile_deployment_jun17 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2017/F477_2017_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2017)
+md_mobile_deployment_jun16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2016/MD-Mobile-Jun2016-v1.csv") %>% mutate(year = 2016)
+md_mobile_deployment_dec19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019/F477_2019_12_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2019)
+md_mobile_deployment_dec18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2018/F477_2018_12_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2018)
+md_mobile_deployment_dec17 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2017/F477_2017_12_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2017)
+md_mobile_deployment_dec16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2016/F477_2016_12_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2016)
+md_mobile_deployment_dec15 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2015/MD-Mobile-Dec2015-v3.csv") %>% mutate(year = 2015)
+
+
+dc_mobile_deployment_jun20 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020/F477_2020_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2020)
+dc_mobile_deployment_jun19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2019/F477_2019_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2019)
+dc_mobile_deployment_jun18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2018/F477_2018_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2018)
+dc_mobile_deployment_jun17 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2017/F477_2017_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2017)
+dc_mobile_deployment_jun16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2016/DC-Mobile-Jun2016-v1.csv") %>% mutate(year = 2016)
+dc_mobile_deployment_dec19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019/F477_2019_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2019)
+dc_mobile_deployment_dec18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2018/F477_2018_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2018)
+dc_mobile_deployment_dec17 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2017/F477_2017_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2017)
+dc_mobile_deployment_dec16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2016/F477_2016_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2016)
+dc_mobile_deployment_dec15 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2015/DC-Mobile-Dec2015-v3.csv") %>% mutate(year = 2015)
+
+
+va_mobile_deployment_jun20.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020_Voice/F477_2020_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2020)
+va_mobile_deployment_dec19.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019_Voice/F477_2019_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2019)
+md_mobile_deployment_jun20.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020_Voice/F477_2020_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2020)
+md_mobile_deployment_dec19.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019_Voice/F477_2019_12_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2019)
+dc_mobile_deployment_jun20.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020_Voice/F477_2020_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2020)
+dc_mobile_deployment_dec19.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019_Voice/F477_2019_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2019)
+```
+
+#
+
+```{r}
+# block group
+va_jun_provider_count_bg <- rbind(va_mobile_deployment_jun20, va_mobile_deployment_jun19, va_mobile_deployment_jun18,
+      va_mobile_deployment_jun17, va_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(block_group = substr(BlockCode, 1, 12)) %>%
+  group_by(block_group, year) %>%
+  summarize(n = n_distinct(dbaName))
+md_jun_provider_count_bg <- rbind(md_mobile_deployment_jun20, md_mobile_deployment_jun19, md_mobile_deployment_jun18,
+      md_mobile_deployment_jun17, md_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(block_group = substr(BlockCode, 1, 12)) %>%
+  group_by(block_group, year) %>%
+  summarize(n = n_distinct(dbaName))
+dc_jun_provider_count_bg <- rbind(dc_mobile_deployment_jun20, dc_mobile_deployment_jun19, dc_mobile_deployment_jun18,
+      dc_mobile_deployment_jun17, dc_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(block_group = substr(BlockCode, 1, 12)) %>%
+  group_by(block_group, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+va_dec_provider_count_bg <- rbind(dc_mobile_deployment_dec19, dc_mobile_deployment_dec18, dc_mobile_deployment_dec17,
+                                  dc_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  dc_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(block_group = substr(BlockCode, 1, 12)) %>%
+  group_by(block_group, year) %>%
+  summarize(n = n_distinct(dbaName))
+md_dec_provider_count_bg <- rbind(md_mobile_deployment_dec19, md_mobile_deployment_dec18, md_mobile_deployment_dec17,
+                                  md_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  md_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(block_group = substr(BlockCode, 1, 12)) %>%
+  group_by(block_group, year) %>%
+  summarize(n = n_distinct(dbaName))
+dc_dec_provider_count_bg <- rbind(dc_mobile_deployment_dec19, dc_mobile_deployment_dec18, dc_mobile_deployment_dec17,
+                                  dc_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  dc_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(block_group = substr(BlockCode, 1, 12)) %>%
+  group_by(block_group, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+# tract
+va_jun_provider_count_tr <- rbind(va_mobile_deployment_jun20, va_mobile_deployment_jun19, va_mobile_deployment_jun18,
+      va_mobile_deployment_jun17, va_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(tract = substr(BlockCode, 1, 11)) %>%
+  group_by(tract, year) %>%
+  summarize(n = n_distinct(dbaName))
+md_jun_provider_count_tr <- rbind(md_mobile_deployment_jun20, md_mobile_deployment_jun19, md_mobile_deployment_jun18,
+      md_mobile_deployment_jun17, md_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(tract = substr(BlockCode, 1, 11)) %>%
+  group_by(tract, year) %>%
+  summarize(n = n_distinct(dbaName))
+dc_jun_provider_count_tr <- rbind(dc_mobile_deployment_jun20, dc_mobile_deployment_jun19, dc_mobile_deployment_jun18,
+      dc_mobile_deployment_jun17, dc_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(tract = substr(BlockCode, 1, 11)) %>%
+  group_by(tract, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+va_dec_provider_count_tr <- rbind(dc_mobile_deployment_dec19, dc_mobile_deployment_dec18, dc_mobile_deployment_dec17,
+                                  dc_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  dc_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(tract = substr(BlockCode, 1, 11)) %>%
+  group_by(tract, year) %>%
+  summarize(n = n_distinct(dbaName))
+md_dec_provider_count_tr <- rbind(md_mobile_deployment_dec19, md_mobile_deployment_dec18, md_mobile_deployment_dec17,
+                                  md_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  md_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(tract = substr(BlockCode, 1, 11)) %>%
+  group_by(tract, year) %>%
+  summarize(n = n_distinct(dbaName))
+dc_dec_provider_count_tr <- rbind(dc_mobile_deployment_dec19, dc_mobile_deployment_dec18, dc_mobile_deployment_dec17,
+                                  dc_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  dc_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(tract = substr(BlockCode, 1, 11)) %>%
+  group_by(tract, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+# county
+va_jun_provider_count_ct <- rbind(va_mobile_deployment_jun20, va_mobile_deployment_jun19, va_mobile_deployment_jun18,
+      va_mobile_deployment_jun17, va_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  group_by(county, year) %>%
+  summarize(n = n_distinct(dbaName))
+md_jun_provider_count_ct <- rbind(md_mobile_deployment_jun20, md_mobile_deployment_jun19, md_mobile_deployment_jun18,
+      md_mobile_deployment_jun17, md_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  group_by(county, year) %>%
+  summarize(n = n_distinct(dbaName))
+dc_jun_provider_count_ct <- rbind(dc_mobile_deployment_jun20, dc_mobile_deployment_jun19, dc_mobile_deployment_jun18,
+      dc_mobile_deployment_jun17, dc_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  group_by(county, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+va_dec_provider_count_ct <- rbind(va_mobile_deployment_dec19, va_mobile_deployment_dec18, va_mobile_deployment_dec17,
+                                  va_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  va_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  group_by(county, year) %>%
+  summarize(n = n_distinct(dbaName))
+md_dec_provider_count_ct <- rbind(md_mobile_deployment_dec19, md_mobile_deployment_dec18, md_mobile_deployment_dec17,
+                                  md_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  md_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  group_by(county, year) %>%
+  summarize(n = n_distinct(dbaName))
+dc_dec_provider_count_ct <- rbind(dc_mobile_deployment_dec19, dc_mobile_deployment_dec18, dc_mobile_deployment_dec17,
+                                  dc_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  dc_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  group_by(county, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+# getting in correct format
+bg_prov_count.a <- merge(st_drop_geometry(dmv.bg)[, c("GEOID", "NAME")], rbind(va_jun_provider_count_bg, md_jun_provider_count_bg, dc_jun_provider_count_bg),
+      by.x = "GEOID", by.y = "block_group") %>%
+  mutate(measure = "num_providers_jun",
+         measure_units = as.character(NA),
+         region_type = "block group",
+         measure_type = "count") %>%
+  rename(geoid = GEOID, region_name = NAME, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+bg_prov_count.b <- merge(st_drop_geometry(dmv.bg)[, c("GEOID", "NAME")], rbind(va_dec_provider_count_bg, md_dec_provider_count_bg, dc_dec_provider_count_bg),
+      by.x = "GEOID", by.y = "block_group") %>%
+  mutate(measure = "num_providers_dec",
+         measure_units = as.character(NA),
+         region_type = "block group",
+         measure_type = "count") %>%
+  rename(geoid = GEOID, region_name = NAME, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+bg_prov_count <- rbind(bg_prov_count.a, bg_prov_count.b)
+
+
+tr_prov_count.a <- merge(st_drop_geometry(dmv.tr)[, c("GEOID", "NAME")], rbind(va_jun_provider_count_tr, md_jun_provider_count_tr, dc_jun_provider_count_tr),
+      by.x = "GEOID", by.y = "tract") %>%
+  mutate(measure = "num_providers_jun",
+         measure_units = as.character(NA),
+         region_type = "tract",
+         measure_type = "count") %>%
+  rename(geoid = GEOID, region_name = NAME, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+tr_prov_count.b <- merge(st_drop_geometry(dmv.tr)[, c("GEOID", "NAME")], rbind(va_dec_provider_count_tr, md_dec_provider_count_tr, dc_dec_provider_count_tr),
+      by.x = "GEOID", by.y = "tract") %>%
+  mutate(measure = "num_providers_dec",
+         measure_units = as.character(NA),
+         region_type = "tract",
+         measure_type = "count") %>%
+  rename(geoid = GEOID, region_name = NAME, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+tr_prov_count <- rbind(tr_prov_count.a, tr_prov_count.b)
+
+
+ct_prov_count.a <- right_join(st_drop_geometry(dmv.ct)[, c("GEOID", "NAME")], rbind(va_jun_provider_count_ct, md_jun_provider_count_ct, dc_jun_provider_count_ct), by = c("GEOID" = "county")) %>%
+  mutate(measure = "num_providers_jun",
+         measure_units = as.character(NA),
+         region_type = "county",
+         measure_type = "count") %>%
+  rename(geoid = GEOID, region_name = NAME, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+ct_prov_count.b <- right_join(st_drop_geometry(dmv.ct)[, c("GEOID", "NAME")], rbind(va_dec_provider_count_ct, md_dec_provider_count_ct, dc_dec_provider_count_ct), by = c("GEOID" = "county")) %>%
+  mutate(measure = "num_providers_dec",
+         measure_units = as.character(NA),
+         region_type = "county",
+         measure_type = "count") %>%
+  rename(geoid = GEOID, region_name = NAME, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+ct_prov_count <- rbind(ct_prov_count.a, ct_prov_count.b)
+```
+
+
+```{r}
+# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+# dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_bg_fcc_2015_2020_number_of_mobile_providers", bg_prov_count)
+# dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers", tr_prov_count)
+# dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers", ct_prov_count)
+# dbDisconnect(con)
+
+ncr.bg_prov_count <- bg_prov_count[substr(bg_prov_count$geoid, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
+ncr.tr_prov_count <- tr_prov_count[substr(tr_prov_count$geoid, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
+ncr.ct_prov_count <- ct_prov_count[substr(ct_prov_count$geoid, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
+
+
+# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+# dc_dbWriteTable(con, "dc_digital_communications", "ncr_bg_fcc_2015_2020_number_of_mobile_providers", ncr.bg_prov_count)
+# dc_dbWriteTable(con, "dc_digital_communications", "ncr_tr_fcc_2015_2020_number_of_mobile_providers", ncr.tr_prov_count)
+# dc_dbWriteTable(con, "dc_digital_communications", "ncr_ct_fcc_2015_2020_number_of_mobile_providers", ncr.ct_prov_count)
+# dbDisconnect(con)
+```
+
+
+```{r}
+# health district
+va_jun_provider_count_hd <- rbind(va_mobile_deployment_jun20, va_mobile_deployment_jun19,
+                                  va_mobile_deployment_jun18, va_mobile_deployment_jun17,
+                                  va_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  merge(health_district[, c("county_id", "health_district")], by.x = "county", by.y = "county_id") %>%
+  group_by(health_district, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+va_dec_provider_count_hd <- rbind(va_mobile_deployment_dec19, va_mobile_deployment_dec18, va_mobile_deployment_dec17,
+                                  va_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
+                                  va_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
+  mutate(county = substr(BlockCode, 1, 5)) %>%
+  merge(health_district[, c("county_id", "health_district")], by.x = "county", by.y = "county_id") %>%
+  group_by(health_district, year) %>%
+  summarize(n = n_distinct(dbaName))
+
+hd_prov_count.a <- va_jun_provider_count_hd %>%
+  merge(health_district_geoids, by.x = "health_district", by.y = "region_name") %>%
+  mutate(measure = "num_providers_jun",
+         measure_units = as.character(NA),
+         region_type = "county",
+         measure_type = "count") %>%
+  rename(region_name = health_district, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+
+hd_prov_count.b <- va_jun_provider_count_hd %>%
+  merge(health_district_geoids, by.x = "health_district", by.y = "region_name") %>%
+  mutate(measure = "num_providers_dec",
+         measure_units = as.character(NA),
+         region_type = "county",
+         measure_type = "count") %>%
+  rename(region_name = health_district, value = n) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+hd_prov_count <- rbind(hd_prov_count.a, hd_prov_count.b)
+
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2015_2020_number_of_mobile_providers", hd_prov_count)
+dbDisconnect(con)
+```
+
+
