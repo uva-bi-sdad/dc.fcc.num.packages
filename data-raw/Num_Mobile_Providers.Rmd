@@ -17,6 +17,7 @@ library(reticulate)
 library(dplyr)
 library(tidygeocoder)
 library(readxl)
+library(data.table)
 ```
 
 
@@ -296,5 +297,21 @@ con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2015_2020_number_of_mobile_providers", hd_prov_count)
 dbDisconnect(con)
 ```
+
+# finish this!!!
+
+```{r}
+source("~/git/VDH/src/helper_functions.R")
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+dcmdva_bg_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.dcmdva_bg_fcc_2015_2020_number_of_mobile_providers")
+dbDisconnect(con)
+
+dcmdva_bg_prov_count %>% group_by(geoid, year) %>% summarize(num_providers_jun)
+
+dcmdva_bg_prov_count
+
+
+```
+
 
 
