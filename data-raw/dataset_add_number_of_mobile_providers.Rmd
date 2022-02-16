@@ -23,10 +23,10 @@ Ex: dc_digital_communications.dcmdva_bg_fcc_2015_2020_number_of_mobile_providers
 ```{r data}
 
 # Ex database_table_name: "va_hd_vdoe_2019_2021_3rd_grade_mean_median_read_score"
-table_names = c("dcmdva_bg_fcc_2015_2020_number_of_mobile_providers",
-                "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers",
-                "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers",
-                "va_hd_fcc_2015_2020_number_of_mobile_providers") 
+table_names = c("dcmdva_bg_fcc_2015_2020_number_of_mobile_providers_update",
+                "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers_update",
+                "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers_update",
+                "va_hd_fcc_2015_2020_number_of_mobile_providers_update") 
     
 con <- get_db_conn()
 

@@ -304,14 +304,95 @@ dbDisconnect(con)
 source("~/git/VDH/src/helper_functions.R")
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dcmdva_bg_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.dcmdva_bg_fcc_2015_2020_number_of_mobile_providers")
+dcmdva_tr_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.dcmdva_tr_fcc_2015_2020_number_of_mobile_providers")
+dcmdva_ct_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.dcmdva_ct_fcc_2015_2020_number_of_mobile_providers")
+va_hd_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.va_hd_fcc_2015_2020_number_of_mobile_providers")
 dbDisconnect(con)
 
-dcmdva_bg_prov_count %>% group_by(geoid, year) %>% summarize(num_providers_jun)
+# block group
+dcmdva_bg_prov_count.2 <- dcmdva_bg_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+dcmdva_bg_prov_count.final <- rbind(dcmdva_bg_prov_count, dcmdva_bg_prov_count.2)
 
-dcmdva_bg_prov_count
+# tract
+dcmdva_tr_prov_count.2 <- dcmdva_tr_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+dcmdva_tr_prov_count.final <- rbind(dcmdva_tr_prov_count, dcmdva_tr_prov_count.2)
 
+# county
+dcmdva_ct_prov_count.2 <- dcmdva_ct_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+dcmdva_ct_prov_count.final <- rbind(dcmdva_ct_prov_count, dcmdva_ct_prov_count.2)
 
+# health district
+va_hd_prov_count.2 <- va_hd_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+va_hd_prov_count.final <- rbind(va_hd_prov_count, va_hd_prov_count.2)
+
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_bg_fcc_2015_2020_number_of_mobile_providers_update", dcmdva_bg_prov_count.final)
+dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers_update", dcmdva_tr_prov_count.final)
+dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers_update", dcmdva_ct_prov_count.final)
+dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2015_2020_number_of_mobile_providers_update", va_hd_prov_count.final)
+dbDisconnect(con)
 ```
 
 
+```{r}
+source("~/git/VDH/src/helper_functions.R")
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+ncr_bg_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.ncr_bg_fcc_2015_2020_number_of_mobile_providers")
+ncr_tr_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.ncr_tr_fcc_2015_2020_number_of_mobile_providers")
+ncr_ct_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.ncr_ct_fcc_2015_2020_number_of_mobile_providers")
+dbDisconnect(con)
+
+# block group
+ncr_bg_prov_count.2 <- ncr_bg_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+ncr_bg_prov_count.final <- rbind(ncr_bg_prov_count, ncr_bg_prov_count.2)
+
+# tract
+ncr_tr_prov_count.2 <- ncr_tr_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+ncr_tr_prov_count.final <- rbind(ncr_tr_prov_count, ncr_tr_prov_count.2)
+
+# county
+ncr_ct_prov_count.2 <- ncr_ct_prov_count %>%
+  group_by(geoid, year, region_type, region_name, measure_type) %>%
+  summarize(value = mean(value, na.rm = T)) %>%
+  mutate(measure = "annual_mean_num_unique_providers",
+         measure_units = as.character(NA)) %>%
+  relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
+ncr_ct_prov_count.final <- rbind(ncr_ct_prov_count, ncr_ct_prov_count.2)
+
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+dc_dbWriteTable(con, "dc_digital_communications", "ncr_bg_fcc_2015_2020_number_of_mobile_providers_update", ncr_bg_prov_count.final)
+dc_dbWriteTable(con, "dc_digital_communications", "ncr_tr_fcc_2015_2020_number_of_mobile_providers_update", ncr_tr_prov_count.final)
+dc_dbWriteTable(con, "dc_digital_communications", "ncr_ct_fcc_2015_2020_number_of_mobile_providers_update", ncr_ct_prov_count.final)
+dbDisconnect(con)
+```
 
