@@ -24,9 +24,9 @@ dc_digital_communications_name.ncr_bgtrct_fcc_2014_2020_number_of_providers: Num
 ```{r data}
 
 # Ex database_table_name: "va_hd_vdoe_2019_2021_3rd_grade_mean_median_read_score"
-table_names = c("va_bgtrcthd_fcc_2014_2020_number_of_providers",
-                "md_bgtrct_fcc_2014_2020_number_of_providers",
-                "dc_bgtrct_fcc_2014_2020_number_of_providers") 
+table_names = c("va_bgtrcthd_fcc_2014_2020_number_of_providers_update",
+                "md_bgtrct_fcc_2014_2020_number_of_providers_update",
+                "dc_bgtrct_fcc_2014_2020_number_of_providers_update") 
     
 con <- get_db_conn()
 
