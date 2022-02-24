@@ -3,6 +3,7 @@ title: "num_providers"
 output: html_document
 ---
 
+# imports
 
 ```{r}
 library(sf)
@@ -21,9 +22,10 @@ library(readxl)
 library(data.table)
 ```
 
-
+# read in data: https://broadbandmap.fcc.gov/#/data-download, https://broadbandmap.fcc.gov/#/, etc.
 
 ```{r}
+# virginia fixed data
 va_fcc_jun_2020 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/VA-Fixed-Jun2020-v2.csv")
 va_fcc_jun_2019 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/VA-Fixed-Jun2019-v2.csv")
 va_fcc_jun_2018 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/VA-Fixed-Jun2018-v1.csv")
@@ -38,6 +40,7 @@ va_fcc_dec_2016 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_comm
 va_fcc_dec_2015 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/VA-Fixed-Dec2015-v4.csv")
 va_fcc_dec_2014 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/VA-Fixed-Dec2014-v3.csv")
 
+# maryland fixed data
 md_fcc_jun_2020 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/MD-Fixed-Jun2020-v2.csv")
 md_fcc_jun_2019 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/MD-Fixed-Jun2019-v2.csv")
 md_fcc_jun_2018 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/MD-Fixed-Jun2018-v1.csv")
@@ -52,6 +55,7 @@ md_fcc_dec_2016 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_comm
 md_fcc_dec_2015 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/MD-Fixed-Dec2015-v4.csv")
 md_fcc_dec_2014 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/MD-Fixed-Dec2014-v3.csv")
 
+# dc fixed data
 dc_fcc_jun_2020 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/DC-Fixed-Jun2020-v2.csv")
 dc_fcc_jun_2019 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/DC-Fixed-Jun2019-v2.csv")
 dc_fcc_jun_2018 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/DC-Fixed-Jun2018-v1.csv")
@@ -67,6 +71,7 @@ dc_fcc_dec_2015 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_comm
 dc_fcc_dec_2014 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_num_providers/DC-Fixed-Dec2014-v3.csv")
 ```
 
+# get and format virginia data
 
 ```{r}
 ### COUNTY
@@ -186,20 +191,30 @@ va_data_tracts <- provider_annual_data %>%
 va_data_tracts.final <- rbind(provider_data, va_data_tracts)
 
 ### Health Districts
-con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
-health_district_geoids <- st_read(con, query = "SELECT * FROM dc_common.va_hd_sdad_2021_virginia_health_district_geoids")
-dbDisconnect(con)
-health_district <- fread("/project/biocomplexity/sdad/projects_data/vdh/va_county_to_hd.csv")
+# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+# health_district_geoids <- st_read(con, query = "SELECT * FROM dc_common.va_hd_sdad_2021_virginia_health_district_geoids")
+# dbDisconnect(con)
+# health_district <- fread("/project/biocomplexity/sdad/projects_data/vdh/va_county_to_hd.csv")
+# health_district$county_id <- as.character(health_district$county_id)
+
+health_district <- read.csv("/project/biocomplexity/sdad/projects_data/vdh/va_county_to_hd.csv")
 health_district$county_id <- as.character(health_district$county_id)
 
-va.hd <- merge(health_district, health_district_geoids[, c("region_name", "geoid")], by.x = "health_district", by.y = "region_name")
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+health_district_geoids <- st_read(con, query = "SELECT * FROM dc_geographies.va_hd_vdh_2021_health_district_geo_names")
+preventable_hospitalization <- st_read(con, query = "SELECT * FROM dc_health_behavior_diet.va_ct_chr_2015_2021_preventable_hospitalizations")
+DBI::dbDisconnect(con)
+
+health_district_2 <- left_join(health_district, health_district_geoids, by = c("health_district" = "region_name"))
+  
+# va.hd <- merge(health_district, health_district_geoids[, c("region_name", "geoid")], by.x = "health_district", by.y = "region_name")
 
 provider_to_count_hd <- function(va_fcc_dec_2019, year, dec)
 {
   va_fcc_dec_2019$BlockCode <- as.character(va_fcc_dec_2019$BlockCode)
   va_fcc_dec_2019$county_code <- substr(va_fcc_dec_2019$BlockCode, 1, 5)
   va_fcc_dec_2019$county_code[va_fcc_dec_2019$county_code == "51515"] = "51019"
-  va_fcc_dec_2019 <- merge(va_fcc_dec_2019, va.hd, by.x = "county_code", by.y = "county_id")
+  va_fcc_dec_2019 <- merge(va_fcc_dec_2019, health_district_2[, c("county_id", "health_district", "geoid")], by.x = "county_code", by.y = "county_id")
   
   counts_dec_2019 <- va_fcc_dec_2019 %>%
     group_by(geoid, health_district) %>%
@@ -244,6 +259,7 @@ va_data_hd <- provider_annual_data %>%
 va_data_hd.final <- rbind(provider_data, va_data_hd)
 
 ### BG
+# read ACS bg
 va.bg <- get_acs(geography = "block group",
                  year = 2019,
                  variables = c(tpop = "B01003_001"),
@@ -301,19 +317,14 @@ va_data_bg <- provider_annual_data %>%
   rbind(provider_data)
 va_data_bg.final <- rbind(provider_data, va_data_bg)
 
-# source("~/git/VDH/src/helper_functions.R")
-# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
-# dc_dbWriteTable(con, "dc_digital_communications", "va_tr_fcc_2014_2020_number_of_providers", all_data_tracts)
-# dc_dbWriteTable(con, "dc_digital_communications", "va_ct_fcc_2014_2020_number_of_providers", all_data_COUNTY)
-# dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2014_2020_number_of_providers", all_data_hd)
-# dbDisconnect(con)
-
 va_provider_data <- rbind(va_data_bg.final, va_data_tracts.final, va_data_COUNTY.final, va_data_hd.final)
 ```
 
+# get and format maryland data
 
 ```{r}
 ### COUNTY
+# read ACS county
 md.co <- get_acs(geography = "county",
                  year = 2019,
                  variables = c(tpop = "B01003_001"),
@@ -486,17 +497,10 @@ md_data_bg <- provider_annual_data %>%
   rbind(provider_data)
 md_data_bg.final <- rbind(provider_data, md_data_bg)
 
-# source("~/git/VDH/src/helper_functions.R")
-# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
-# dc_dbWriteTable(con, "dc_digital_communications", "va_tr_fcc_2014_2020_number_of_providers", all_data_tracts)
-# dc_dbWriteTable(con, "dc_digital_communications", "va_ct_fcc_2014_2020_number_of_providers", all_data_COUNTY)
-# dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2014_2020_number_of_providers", all_data_hd)
-# dbDisconnect(con)
-
 md_provider_data <- rbind(md_data_bg.final, md_data_tracts.final, md_data_COUNTY.final)
-md_provider_data
 ```
 
+# get and format dc data
 
 ```{r}
 ### COUNTY
@@ -672,23 +676,17 @@ dc_data_bg <- provider_annual_data %>%
   rbind(provider_data)
 dc_data_bg.final <- rbind(provider_data, dc_data_bg)
 
-# source("~/git/VDH/src/helper_functions.R")
-# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
-# dc_dbWriteTable(con, "dc_digital_communications", "va_tr_fcc_2014_2020_number_of_providers", all_data_tracts)
-# dc_dbWriteTable(con, "dc_digital_communications", "va_ct_fcc_2014_2020_number_of_providers", all_data_COUNTY)
-# dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2014_2020_number_of_providers", all_data_hd)
-# dbDisconnect(con)
-
 dc_provider_data <- rbind(dc_data_bg.final, dc_data_tracts.final, dc_data_COUNTY.final)
-dc_provider_data
 ```
 
+# send updated data to db
 
 ```{r}
 # combined hd, ct, tr, and bg data
 # how do we want to define providers within a county, tract, etc
 # (do we add up all of the providers within the blocks within that county??? or is it an average)
 
+# subset updated data
 ncr_provider_data <- rbind(va_provider_data, md_provider_data, dc_provider_data)
 ncr_provider_data.2 <- ncr_provider_data %>% filter(region_type != "health district") %>% mutate(county = substr(geoid, 1, 5))
 ncr_provider_data.3 <- ncr_provider_data.2 %>% filter(county %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021")) %>% select(-county)
@@ -696,6 +694,8 @@ ncr_provider_data.3 <- ncr_provider_data.2 %>% filter(county %in% c("51013", "51
 # A - number of distinct providers in each county
 # B - average number of district providers in blocks within geography
 
+# send to db
+source("~/git/VDH/src/helper_functions.R")
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dc_dbWriteTable(con, "dc_digital_communications", "va_bgtrcthd_fcc_2014_2020_number_of_providers_update", va_provider_data)
 dc_dbWriteTable(con, "dc_digital_communications", "md_bgtrct_fcc_2014_2020_number_of_providers_update", md_provider_data)
@@ -703,4 +703,3 @@ dc_dbWriteTable(con, "dc_digital_communications", "dc_bgtrct_fcc_2014_2020_numbe
 dc_dbWriteTable(con, "dc_digital_communications", "ncr_bgtrct_fcc_2014_2020_number_of_providers_update", ncr_provider_data.3)
 dbDisconnect(con)
 ```
-

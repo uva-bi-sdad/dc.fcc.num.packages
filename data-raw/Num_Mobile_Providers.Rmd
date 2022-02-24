@@ -3,6 +3,8 @@ title: "Untitled"
 output: html_document
 ---
 
+# imports
+
 ```{r}
 library(sf)
 library(tidyverse)
@@ -18,12 +20,13 @@ library(dplyr)
 library(tidygeocoder)
 library(readxl)
 library(data.table)
+library(DBI)
 ```
 
+# Data Source: https://www.fcc.gov/mobile-deployment-form-477-data
 
 ```{r}
-# verizon_data <- st_read("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Verizon_data/Verizon_Wireless_349862.shp")
-
+# read in Virginia mobile data
 va_mobile_deployment_jun20 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020/F477_2020_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2020)
 va_mobile_deployment_jun19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2019/F477_2019_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2019)
 va_mobile_deployment_jun18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2018/F477_2018_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2018)
@@ -35,7 +38,7 @@ va_mobile_deployment_dec17 <- fread("/project/biocomplexity/sdad/projects_data/m
 va_mobile_deployment_dec16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2016/F477_2016_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2016)
 va_mobile_deployment_dec15 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2015/VA-Mobile-Dec2015-v3.csv") %>% mutate(year = 2015)
 
-
+# read in Maryland mobile data
 md_mobile_deployment_jun20 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020/F477_2020_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2020)
 md_mobile_deployment_jun19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2019/F477_2019_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2019)
 md_mobile_deployment_jun18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2018/F477_2018_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2018)
@@ -47,7 +50,7 @@ md_mobile_deployment_dec17 <- fread("/project/biocomplexity/sdad/projects_data/m
 md_mobile_deployment_dec16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2016/F477_2016_12_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2016)
 md_mobile_deployment_dec15 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2015/MD-Mobile-Dec2015-v3.csv") %>% mutate(year = 2015)
 
-
+# read in D.C. mobile data
 dc_mobile_deployment_jun20 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020/F477_2020_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2020)
 dc_mobile_deployment_jun19 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2019/F477_2019_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2019)
 dc_mobile_deployment_jun18 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2018/F477_2018_06_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2018)
@@ -59,7 +62,7 @@ dc_mobile_deployment_dec17 <- fread("/project/biocomplexity/sdad/projects_data/m
 dc_mobile_deployment_dec16 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2016/F477_2016_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2016)
 dc_mobile_deployment_dec15 <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2015/DC-Mobile-Dec2015-v3.csv") %>% mutate(year = 2015)
 
-
+# read in DC_MD_VA mobile "voice" data
 va_mobile_deployment_jun20.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020_Voice/F477_2020_06_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2020)
 va_mobile_deployment_dec19.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019_Voice/F477_2019_12_Centroid_Methodology_State_VA.csv") %>% mutate(year = 2019)
 md_mobile_deployment_jun20.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/June_2020_Voice/F477_2020_06_Centroid_Methodology_State_MD.csv") %>% mutate(year = 2020)
@@ -68,7 +71,35 @@ dc_mobile_deployment_jun20.voice <- fread("/project/biocomplexity/sdad/projects_
 dc_mobile_deployment_dec19.voice <- fread("/project/biocomplexity/sdad/projects_data/mc/data_commons/dc_digital_communications/FCC_LTE_data/Mobile_Deployment_Data_Centroid/Dec_2019_Voice/F477_2019_12_Centroid_Methodology_State_DC.csv") %>% mutate(year = 2019)
 ```
 
-#
+# read in ACS data
+
+```{r}
+dmv.bg <- get_acs(geography = "block group",
+                  year = 2019,
+                  variables = c(tpop = "B06009_001"),
+                  state = "VA",
+                  survey = "acs5",
+                  output = "wide",
+                  geometry = F)
+
+dmv.tr <- get_acs(geography = "tract",
+                  year = 2019,
+                  variables = c(tpop = "B06009_001"),
+                  state = "VA",
+                  survey = "acs5",
+                  output = "wide",
+                  geometry = F)
+
+dmv.ct <- get_acs(geography = "county",
+                  year = 2019,
+                  variables = c(tpop = "B06009_001"),
+                  state = "VA",
+                  survey = "acs5",
+                  output = "wide",
+                  geometry = F)
+```
+
+# get provider count at bg, tr, and ct levels
 
 ```{r}
 # block group
@@ -180,7 +211,7 @@ dc_dec_provider_count_ct <- rbind(dc_mobile_deployment_dec19, dc_mobile_deployme
   summarize(n = n_distinct(dbaName))
 
 # getting in correct format
-bg_prov_count.a <- merge(st_drop_geometry(dmv.bg)[, c("GEOID", "NAME")], rbind(va_jun_provider_count_bg, md_jun_provider_count_bg, dc_jun_provider_count_bg),
+bg_prov_count.a <- merge(dmv.bg[, c("GEOID", "NAME")], rbind(va_jun_provider_count_bg, md_jun_provider_count_bg, dc_jun_provider_count_bg),
       by.x = "GEOID", by.y = "block_group") %>%
   mutate(measure = "num_providers_jun",
          measure_units = as.character(NA),
@@ -188,7 +219,7 @@ bg_prov_count.a <- merge(st_drop_geometry(dmv.bg)[, c("GEOID", "NAME")], rbind(v
          measure_type = "count") %>%
   rename(geoid = GEOID, region_name = NAME, value = n) %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
-bg_prov_count.b <- merge(st_drop_geometry(dmv.bg)[, c("GEOID", "NAME")], rbind(va_dec_provider_count_bg, md_dec_provider_count_bg, dc_dec_provider_count_bg),
+bg_prov_count.b <- merge(dmv.bg[, c("GEOID", "NAME")], rbind(va_dec_provider_count_bg, md_dec_provider_count_bg, dc_dec_provider_count_bg),
       by.x = "GEOID", by.y = "block_group") %>%
   mutate(measure = "num_providers_dec",
          measure_units = as.character(NA),
@@ -199,7 +230,7 @@ bg_prov_count.b <- merge(st_drop_geometry(dmv.bg)[, c("GEOID", "NAME")], rbind(v
 bg_prov_count <- rbind(bg_prov_count.a, bg_prov_count.b)
 
 
-tr_prov_count.a <- merge(st_drop_geometry(dmv.tr)[, c("GEOID", "NAME")], rbind(va_jun_provider_count_tr, md_jun_provider_count_tr, dc_jun_provider_count_tr),
+tr_prov_count.a <- merge(dmv.tr[, c("GEOID", "NAME")], rbind(va_jun_provider_count_tr, md_jun_provider_count_tr, dc_jun_provider_count_tr),
       by.x = "GEOID", by.y = "tract") %>%
   mutate(measure = "num_providers_jun",
          measure_units = as.character(NA),
@@ -207,7 +238,7 @@ tr_prov_count.a <- merge(st_drop_geometry(dmv.tr)[, c("GEOID", "NAME")], rbind(v
          measure_type = "count") %>%
   rename(geoid = GEOID, region_name = NAME, value = n) %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
-tr_prov_count.b <- merge(st_drop_geometry(dmv.tr)[, c("GEOID", "NAME")], rbind(va_dec_provider_count_tr, md_dec_provider_count_tr, dc_dec_provider_count_tr),
+tr_prov_count.b <- merge(dmv.tr[, c("GEOID", "NAME")], rbind(va_dec_provider_count_tr, md_dec_provider_count_tr, dc_dec_provider_count_tr),
       by.x = "GEOID", by.y = "tract") %>%
   mutate(measure = "num_providers_dec",
          measure_units = as.character(NA),
@@ -218,14 +249,14 @@ tr_prov_count.b <- merge(st_drop_geometry(dmv.tr)[, c("GEOID", "NAME")], rbind(v
 tr_prov_count <- rbind(tr_prov_count.a, tr_prov_count.b)
 
 
-ct_prov_count.a <- right_join(st_drop_geometry(dmv.ct)[, c("GEOID", "NAME")], rbind(va_jun_provider_count_ct, md_jun_provider_count_ct, dc_jun_provider_count_ct), by = c("GEOID" = "county")) %>%
+ct_prov_count.a <- right_join(dmv.ct[, c("GEOID", "NAME")], rbind(va_jun_provider_count_ct, md_jun_provider_count_ct, dc_jun_provider_count_ct), by = c("GEOID" = "county")) %>%
   mutate(measure = "num_providers_jun",
          measure_units = as.character(NA),
          region_type = "county",
          measure_type = "count") %>%
   rename(geoid = GEOID, region_name = NAME, value = n) %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
-ct_prov_count.b <- right_join(st_drop_geometry(dmv.ct)[, c("GEOID", "NAME")], rbind(va_dec_provider_count_ct, md_dec_provider_count_ct, dc_dec_provider_count_ct), by = c("GEOID" = "county")) %>%
+ct_prov_count.b <- right_join(dmv.ct[, c("GEOID", "NAME")], rbind(va_dec_provider_count_ct, md_dec_provider_count_ct, dc_dec_provider_count_ct), by = c("GEOID" = "county")) %>%
   mutate(measure = "num_providers_dec",
          measure_units = as.character(NA),
          region_type = "county",
@@ -235,73 +266,86 @@ ct_prov_count.b <- right_join(st_drop_geometry(dmv.ct)[, c("GEOID", "NAME")], rb
 ct_prov_count <- rbind(ct_prov_count.a, ct_prov_count.b)
 ```
 
+# send data to db and subset
 
 ```{r}
-# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
-# dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_bg_fcc_2015_2020_number_of_mobile_providers", bg_prov_count)
-# dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers", tr_prov_count)
-# dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers", ct_prov_count)
-# dbDisconnect(con)
+# send to db
+source("~/git/VDH/src/helper_functions.R")
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_bg_fcc_2015_2020_number_of_mobile_providers", bg_prov_count)
+dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers", tr_prov_count)
+dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers", ct_prov_count)
+dbDisconnect(con)
 
+# subset for ncr
 ncr.bg_prov_count <- bg_prov_count[substr(bg_prov_count$geoid, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
 ncr.tr_prov_count <- tr_prov_count[substr(tr_prov_count$geoid, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
 ncr.ct_prov_count <- ct_prov_count[substr(ct_prov_count$geoid, 1, 5) %in% c("51013", "51059", "51107", "51510", "51600", "51153", "51683", "51685", "51610", "11001", "24031", "24033", "24017", "24021"),]
 
-
-# con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
-# dc_dbWriteTable(con, "dc_digital_communications", "ncr_bg_fcc_2015_2020_number_of_mobile_providers", ncr.bg_prov_count)
-# dc_dbWriteTable(con, "dc_digital_communications", "ncr_tr_fcc_2015_2020_number_of_mobile_providers", ncr.tr_prov_count)
-# dc_dbWriteTable(con, "dc_digital_communications", "ncr_ct_fcc_2015_2020_number_of_mobile_providers", ncr.ct_prov_count)
-# dbDisconnect(con)
+# send to db
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+dc_dbWriteTable(con, "dc_digital_communications", "ncr_bg_fcc_2015_2020_number_of_mobile_providers", ncr.bg_prov_count)
+dc_dbWriteTable(con, "dc_digital_communications", "ncr_tr_fcc_2015_2020_number_of_mobile_providers", ncr.tr_prov_count)
+dc_dbWriteTable(con, "dc_digital_communications", "ncr_ct_fcc_2015_2020_number_of_mobile_providers", ncr.ct_prov_count)
+dbDisconnect(con)
 ```
 
+# get health district data and send to db
 
 ```{r}
+health_district <- read.csv("/project/biocomplexity/sdad/projects_data/vdh/va_county_to_hd.csv")
+health_district$county_id <- as.character(health_district$county_id)
+
+con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
+health_district_geoids <- st_read(con, query = "SELECT * FROM dc_geographies.va_hd_vdh_2021_health_district_geo_names")
+preventable_hospitalization <- st_read(con, query = "SELECT * FROM dc_health_behavior_diet.va_ct_chr_2015_2021_preventable_hospitalizations")
+DBI::dbDisconnect(con)
+  
+health_district_2 <- left_join(health_district, health_district_geoids, by = c("health_district" = "region_name"))
+
 # health district
 va_jun_provider_count_hd <- rbind(va_mobile_deployment_jun20, va_mobile_deployment_jun19,
                                   va_mobile_deployment_jun18, va_mobile_deployment_jun17,
                                   va_mobile_deployment_jun16 %>% rename(dbaName = DBAName)) %>%
   mutate(county = substr(BlockCode, 1, 5)) %>%
-  merge(health_district[, c("county_id", "health_district")], by.x = "county", by.y = "county_id") %>%
-  group_by(health_district, year) %>%
+  merge(health_district_2[, c("county_id", "health_district", "geoid")], by.x = "county", by.y = "county_id") %>%
+  group_by(health_district, geoid, year) %>%
   summarize(n = n_distinct(dbaName))
 
 va_dec_provider_count_hd <- rbind(va_mobile_deployment_dec19, va_mobile_deployment_dec18, va_mobile_deployment_dec17,
                                   va_mobile_deployment_dec16 %>% rename(dbaName = DBAName),
                                   va_mobile_deployment_dec15 %>% rename(dbaName = DBAName)) %>%
   mutate(county = substr(BlockCode, 1, 5)) %>%
-  merge(health_district[, c("county_id", "health_district")], by.x = "county", by.y = "county_id") %>%
-  group_by(health_district, year) %>%
+  merge(health_district_2[, c("county_id", "health_district", "geoid")], by.x = "county", by.y = "county_id") %>%
+  group_by(health_district, geoid, year) %>%
   summarize(n = n_distinct(dbaName))
 
 hd_prov_count.a <- va_jun_provider_count_hd %>%
-  merge(health_district_geoids, by.x = "health_district", by.y = "region_name") %>%
   mutate(measure = "num_providers_jun",
          measure_units = as.character(NA),
-         region_type = "county",
+         region_type = "health district",
          measure_type = "count") %>%
   rename(region_name = health_district, value = n) %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
 
 hd_prov_count.b <- va_jun_provider_count_hd %>%
-  merge(health_district_geoids, by.x = "health_district", by.y = "region_name") %>%
   mutate(measure = "num_providers_dec",
          measure_units = as.character(NA),
-         region_type = "county",
+         region_type = "health district",
          measure_type = "count") %>%
   rename(region_name = health_district, value = n) %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
 hd_prov_count <- rbind(hd_prov_count.a, hd_prov_count.b)
 
+# send hd data to db
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2015_2020_number_of_mobile_providers", hd_prov_count)
 dbDisconnect(con)
 ```
 
-# finish this!!!
+# update to include annual calcuation
 
 ```{r}
-source("~/git/VDH/src/helper_functions.R")
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dcmdva_bg_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.dcmdva_bg_fcc_2015_2020_number_of_mobile_providers")
 dcmdva_tr_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.dcmdva_tr_fcc_2015_2020_number_of_mobile_providers")
@@ -345,6 +389,7 @@ va_hd_prov_count.2 <- va_hd_prov_count %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
 va_hd_prov_count.final <- rbind(va_hd_prov_count, va_hd_prov_count.2)
 
+# send to db
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_bg_fcc_2015_2020_number_of_mobile_providers_update", dcmdva_bg_prov_count.final)
 dc_dbWriteTable(con, "dc_digital_communications", "dcmdva_tr_fcc_2015_2020_number_of_mobile_providers_update", dcmdva_tr_prov_count.final)
@@ -353,8 +398,10 @@ dc_dbWriteTable(con, "dc_digital_communications", "va_hd_fcc_2015_2020_number_of
 dbDisconnect(con)
 ```
 
+# update ncr data to include annual calculations
 
 ```{r}
+# update the ncr data to include annual_mean_num_unique_providers (and not just semi-annual calcs)
 source("~/git/VDH/src/helper_functions.R")
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 ncr_bg_prov_count <- st_read(con, query = "SELECT * FROM dc_digital_communications.ncr_bg_fcc_2015_2020_number_of_mobile_providers")
@@ -389,6 +436,7 @@ ncr_ct_prov_count.2 <- ncr_ct_prov_count %>%
   relocate("geoid", "region_type", "region_name", "year", "measure", "value", "measure_type", "measure_units")
 ncr_ct_prov_count.final <- rbind(ncr_ct_prov_count, ncr_ct_prov_count.2)
 
+# send ncr data to db
 con <- get_db_conn(db_pass = "rsu8zvrsu8zv")
 dc_dbWriteTable(con, "dc_digital_communications", "ncr_bg_fcc_2015_2020_number_of_mobile_providers_update", ncr_bg_prov_count.final)
 dc_dbWriteTable(con, "dc_digital_communications", "ncr_tr_fcc_2015_2020_number_of_mobile_providers_update", ncr_tr_prov_count.final)
