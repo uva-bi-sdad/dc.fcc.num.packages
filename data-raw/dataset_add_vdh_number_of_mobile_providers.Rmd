@@ -17,16 +17,15 @@ dataset_doi <- readLines(here::here("data/dataset_doi"))[1]
 
 ## Code you used to create dataset - LIST BELOW
 
-Ex: dc_digital_communications_name.va_bgtrcthd_fcc_2014_2020_number_of_providers, dc_digital_communications_name.md_bgtrct_fcc_2014_2020_number_of_providers, dc_digital_communications_name.dc_bgtrct_fcc_2014_2020_number_of_providers,
-dc_digital_communications_name.ncr_bgtrct_fcc_2014_2020_number_of_providers: Num_Providers.RMD
+dc_digital_communications.dcmdva_tr_fcc_2015_2020_number_of_mobile_providers_update, dc_digital_communications.dcmdva_ct_fcc_2015_2020_number_of_mobile_providers_update, dc_digital_communications.va_hd_fcc_2015_2020_number_of_mobile_providers_update: Num_Mobile_Providers.RMD
 
 
 ```{r data}
 
 # Ex database_table_name: "va_hd_vdoe_2019_2021_3rd_grade_mean_median_read_score"
-table_names = c("va_bgtrcthd_fcc_2014_2020_number_of_providers",
-                "md_bgtrct_fcc_2014_2020_number_of_providers",
-                "dc_bgtrct_fcc_2014_2020_number_of_providers") 
+table_names = c("dcmdva_tr_fcc_2015_2020_number_of_mobile_providers_update",
+                "dcmdva_ct_fcc_2015_2020_number_of_mobile_providers_update",
+                "va_hd_fcc_2015_2020_number_of_mobile_providers_update") 
     
 con <- get_db_conn()
 
@@ -47,7 +46,8 @@ if (length(table_names) > 1)
 
 DBI::dbDisconnect(con)
 
-all_geos_file_name <- "dcmdva_hdcttrbg_2014_2020_number_of_fixed_providers"  #Ex: "va_vdoe_2019_2021_3rd_grade_mean_median_read_score"
+all_geos_dat <- all_geos_dat[substr(all_geos_dat$geoid, 1, 2) == "51",]
+all_geos_file_name <- "va_hdcttr_2015_2020_number_of_mobile_providers"  #Ex: "va_vdoe_2019_2021_3rd_grade_mean_median_read_score"
 assign(all_geos_file_name, all_geos_dat)
 ```
 
