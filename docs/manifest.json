@@ -1,0 +1,87 @@
+{
+  "name": "dc.fcc.num.packages",
+  "data": [
+    {
+      "name": "number_of_fixed_providers",
+      "variables": ["num_providers_dec", "num_providers_jun", "annual_mean_num_unique_providers"],
+      "file": "dcmdva_hdcttrbg_2014_2020_number_of_fixed_providers.csv.xz",
+      "size": 136880,
+      "md5": "bbac8a67aa53d0e86474b25ce9a0023e"
+    },
+    {
+      "name": "number_of_mobile_providers",
+      "variables": ["num_providers_jun", "num_providers_dec", "annual_mean_num_unique_providers"],
+      "file": "dcmdva_hdcttrbg_2015_2020_number_of_mobile_providers.csv.xz",
+      "size": 309540,
+      "md5": "0635d42caaf5011f2daa7f7795eb7b30"
+    },
+    {
+      "name": "number_of_fixed_providers",
+      "variables": ["num_providers_dec", "num_providers_jun", "annual_mean_num_unique_providers"],
+      "file": "ncr_cttrbg_2014_2020_number_of_fixed_providers.csv.xz",
+      "size": 274872,
+      "md5": "a5ea7283a09dc7228352b1863609ec6e"
+    },
+    {
+      "name": "number_of_mobile_providers",
+      "variables": ["num_providers_jun", "num_providers_dec", "annual_mean_num_unique_providers"],
+      "file": "ncr_cttrbg_2015_2020_number_of_mobile_providers.csv.xz",
+      "size": 104732,
+      "md5": "9cba6c77bfe1ae5dbaf96eaa47cafa29"
+    },
+    {
+      "name": "number_of_fixed_providers",
+      "variables": ["num_providers_dec", "num_providers_jun", "annual_mean_num_unique_providers"],
+      "file": "va_hdcttr_2014_2020_number_of_fixed_providers.csv.xz",
+      "size": 136844,
+      "md5": "18a0216faa70847f0d072b3499a46af0"
+    },
+    {
+      "name": "number_of_mobile_providers",
+      "variables": ["num_providers_jun", "annual_mean_num_unique_providers", "num_providers_dec"],
+      "file": "va_hdcttr_2015_2020_number_of_mobile_providers.csv.xz",
+      "size": 50872,
+      "md5": "6b8ad7bd96ee371098322a0db4ab5c8c"
+    },
+    {
+      "name": "number_of_mobile_providers",
+      "variables": ["num_providers_jun", "annual_mean_num_unique_providers", "num_providers_dec"],
+      "file": "va_hdcttrbg_2015_2020_number_of_mobile_providers.csv.xz",
+      "size": 152780,
+      "md5": "39cc8b8a2316fd481b4706bb05a99e0e"
+    }
+  ],
+  "distributions": {
+    "dataverse": {
+      "id": 55826,
+      "doi": "doi:10.18130/V3/ZRDRHB",
+      "server": "https://dataverse.lib.virginia.edu/",
+      "data": [
+        {
+          "file": "ncr_cttrbg_2014_2020_number_of_fixed_providers.csv.xz",
+          "id": 55870,
+          "size": 274872,
+          "md5": "a5ea7283a09dc7228352b1863609ec6e"
+        },
+        {
+          "file": "ncr_cttrbg_2015_2020_number_of_mobile_providers.csv.xz",
+          "id": 55866,
+          "size": 104732,
+          "md5": "9cba6c77bfe1ae5dbaf96eaa47cafa29"
+        },
+        {
+          "file": "va_hdcttr_2014_2020_number_of_fixed_providers.csv.xz",
+          "id": 55941,
+          "size": 136844,
+          "md5": "18a0216faa70847f0d072b3499a46af0"
+        },
+        {
+          "file": "va_hdcttr_2015_2020_number_of_mobile_providers.csv.xz",
+          "id": 55940,
+          "size": 50872,
+          "md5": "6b8ad7bd96ee371098322a0db4ab5c8c"
+        }
+      ]
+    }
+  }
+}
